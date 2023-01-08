@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Scanner</title>
+    <script type="text/javascript" src="Resources/dynamsoft.webtwain.initiate.js"></script>
+    <script type="text/javascript" src="Resources/dynamsoft.webtwain.config.js"></script>
+    <style>
+
+
+        .image-container img {
+            width: 800px;
+            height: 600px;
+            object-fit: cover;
+        }
+
+        .inner{
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            transform: translate(-50%, -25%);
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .left {
+            /*float: left;*/
+            width: 50%;
+            justify-content: center;
+            align-items: center;
+        }
+        .right {
+            float: right;
+            width: 50%;
+        }
+
+        .grid-item {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            
+        }
+    </style>
+</head>
+
+<body>
+    <script type="text/javascript">
+        var DWObject;
+        function Dynamsoft_OnReady() {
+            DWObject = Dynamsoft.DWT.GetWebTwain('dwtcontrolContainer');
+            DWObject.Viewer.setViewMode(2, 2);
+        }
+
+        function Download(){
+            DWObject.SaveAllAsPDF("Sample.pdf",
+                function() {
+                    console.log('Successful!');
+                },
+                function(errCode, errString) {
+                    console.log(errString);
+                }
+            );
+        }
+
+        function AcquireImage() {
+            if (DWObject) {
+                DWObject.SelectSourceAsync().then(function () {
+                    Download();
+                    return DWObject.AcquireImageAsync({
+                        IfDisableSourceAfterAcquire: true
+                    });
+                }).then(function(){
+                    Download();
+                    return DWObject.CloseSourceAsync();
+                }).catch(function (exp) {
+                    alert(exp.message);
+                });
+            }
+
+        }
+
+
+        function RemoveBlank() {
+            DWObject.BlankImageMaxStdDev = 10;
+            if (DWObject.IsBlankImageExpress(DWObject.CurrentImageIndexInBuffer)) {
+                DWObject.RemoveImage(DWObject.CurrentImageIndexInBuffer);
+            }
+        }
+
+        function RemoveAllImages() {
+            DWObject.RemoveAllImages();
+            DWObject.RemoveImage(0);
+            Dynamsoft.DWT.CloseDialog();
+        }
+    </script>
+    <div class="container">
+
+        <div class="left">
+            <div id="dwtcontrolContainer" class="inner">
+
+            </div>
+        </div>
+
+
+
+        <div class="right">
+
+            <div class="grid-item">
+                <label for="scaners">Select a Source:</label>
+                <select id="scaners">
+                    <option value="TWAIN2 FreeImage Software Scanner">TWAIN2 FreeImage Software Scanner</option>
+                    <option value="Twain64-TWAIN2 FreeImage Software">Twain64-TWAIN2 FreeImage Software</option>
+                </select>
+                <br>
+                <br>
+                <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+                <label for="vehicle1">Show UI</label>
+                <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
+                <label for="vehicle2"> Auto Feeder</label>
+
+                <br>
+                <br>
+
+                <input type="radio" id="BandW" name="fav_language" value="BandW">
+                <label for="BandW">Black & White</label><br>
+                <input type="radio" id="Gray" name="fav_language" value="Gray">
+                <label for="Gray">Gray</label><br>
+                <input type="radio" id="Color" name="fav_language" value="Color">
+                <label for="Color">Color</label>
+
+                <br>
+                <br>
+
+                <label for="Resolution">Resolution</label>
+                <select id="Resolution">
+                    <option value="100px">100px</option>
+                    <option value="200px">200px</option>
+                </select>
+                <br>
+                <br>
+                <input type="button" value="Scan and Save 1" onclick="AcquireImage();" />
+                <br>
+                <br>
+                <input type="button" value="Scan and Save 2" onclick="AcquireImage();" />
+
+                <br>
+                <br>
+                <input type="button" value="Remove Blank Images" onclick="RemoveBlank();" />
+                <br>
+                <br>
+
+                <input type="button" value="Remove All Images" onclick="RemoveAllImages();"/>
+                <br>
+                <br>
+
+
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

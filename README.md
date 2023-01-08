@@ -1,1 +1,1 @@
-# Dynamsoft
+# Scanner
